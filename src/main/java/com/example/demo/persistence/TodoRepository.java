@@ -17,6 +17,6 @@ import java.util.List;
 // 하지만 적어도 JpaRepository에서는 그 법칙을 무시하는 것 같다.
 @Repository
 public interface TodoRepository extends JpaRepository<TodoEntity, String> {
-    @Query("select * from Todo t where t.userId = ?1")
+    @Query("select t from TodoEntity t where t.userId = ?1")
     List<TodoEntity> findByUserId(String userId);
 }
