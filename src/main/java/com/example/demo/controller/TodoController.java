@@ -76,4 +76,56 @@ public class TodoController {
         // 4. ResponseDTO를 리턴한다.
         return ResponseEntity.ok().body(response);
     }
+
+    @PutMapping
+    public ResponseEntity<?> updateTodo(@RequestBody TodoDTO dto){
+        String tempUserId = "temporary-user";
+
+        // 1. dto를 TodoEntity 로 변환한다.
+        TodoEntity entity = TodoDTO.toEntity(dto);
+
+        // 2. 임시 사용자 아이디를 설정해 준다. 이 부분은 인증과 인가에서 수정할 예정.
+        entity.setUserId(tempUserId);
+
+        // 3. 서비스를 이용해 Entity를 업데이트 한다.
+        List<TodoEntity> entities = service.update(entity);
+
+        // 4. 자바 스트림을 이용해 리턴된 엔티티 리스트를 TodoDTO 리스트로 변환한다.
+        List<TodoDTO> dtos = entities.stream().map(TodoDTO::new).collect(Collectors.toList());
+
+        // 5. 변환된 TodoDTO 리스트를 이용해 ResponseDTO 를 초기화한다.
+        ResponseDTO<TodoDTO> response = ResponseDTO.<TodoDTO>builder().data(dtos).build();
+
+        // 6. ResponseDTO 를 리턴한다.
+        return ResponseEntity.ok().body(response);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<?> deleteTodo(@RequestBody TodoDTO dto){
+        try{
+            String tempUserId = "temporary-user";
+
+            // 1. dto를 TodoEntity 로 변환한다.
+            TodoEntity entity = TodoDTO.toEntity(dto);
+
+            // 2. 임시 사용자 아이디를 설정해 준다. 이 부분은 인증과 인가에서 수정할 예정.
+            entity.setUserId(tempUserId);
+
+            // 3. 서비스를 이용해 엔티티를 삭제한다.
+            List<TodoEntity> entities = service.delete(entity);
+
+            // 4. 자바 스트림을 이용해 리턴된 엔티티 리스트를 투두 리스트로 변환한다.
+            List<TodoDTO> dtos = entities.stream().map(TodoDTO::new).collect(Collectors.toList());
+
+            // 5. 변환된 TodoDTO 리스트를 이용해 ResponseDTO를 초기화한다.
+            ResponseDTO<TodoDTO> response = ResponseDTO.<TodoDTO>builder().data(dtos).build();
+
+            // 6. ResponseDTO를 리턴한다.
+            return ResponseEntity.ok().body(response);
+        }catch (Exception e){
+            String error = e.getMessage();
+            ResponseDTO<TodoDTO> response = ResponseDTO.<TodoDTO>builder().error(error).build();
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
 }
